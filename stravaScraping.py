@@ -3,8 +3,9 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
 import time
-from secrets import pwd
-from secrets import email
+from scraping_secrets import pwd
+from scraping_secrets import email
+import pandas as pd
 
 
 driver = webdriver.Edge()
@@ -24,6 +25,8 @@ driver.find_element(By.NAME,'password').send_keys(pwd)
 driver.find_element(By.NAME,'remember_me').click()
 
 driver.find_element(By.ID,'login-button').click()
+
+df = pd.DataFrame(columns = ['ID','Date', 'Mileage', 'Activity-Type', 'Time', 'Location'])
 
 for pro in pros:
 
@@ -55,9 +58,23 @@ for pro in pros:
                 if(w!=p):
                     driver.switch_to.window(w)
 
-            time.sleep(1)
+            time.sleep(2)
 
             driver.find_element(By.ID,'gpx-download').click()
+
+            date = driver.find_element(By.XPATH, '//*[@id="heading"]/div/div/div[1]/div[1]/div/time')
+            
+            miles = driver.find_element(By.XPATH, '//*[@id="heading"]/div/div/div[2]/ul[1]/li[1]/strong')
+
+            activity_type = driver.find_element(By.XPATH, '//*[@id="heading"]/header/h2/span')
+
+            activity_time = driver.find_element(By.XPATH, '//*[@id="heading"]/div/div/div[2]/ul[1]/li[2]/strong')
+
+            location = driver.find_element(By.XPATH, '//*[@id="heading"]/div/div/div[1]/div[1]/div/span')
+
+            new_row = {'ID':pro,'Date':date.text, 'Mileage':miles.text, 'Activity-Type':activity_type.text, 'Time':activity_time.text, 'Location':location.text}
+
+            df = df._append(new_row, ignore_index=True)
 
             driver.close()
 
