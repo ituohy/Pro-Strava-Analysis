@@ -12,7 +12,7 @@ driver = webdriver.Edge()
 
 #last crashed at first pro, jan 26
 
-pros = [189040,254096,465035,2119306,1189566,384548,1630132,9232885,1905161,186522,8758,4097457,5060232,3979847,5201565,2192184,197359,8203181,2926114,6782552,19593505,30579397,2905866,34780520,4671192,1751647,1936233,320095,2041772,119832,3645709,74997,20067483,3813861,192085,1579951,119155,174573,11668,188840]
+pros = [189040,254096,465035,2119306]#,1189566,384548,1630132,9232885,1905161,186522,8758,4097457,5060232,3979847,5201565,2192184,197359,8203181,2926114,6782552,19593505,30579397,2905866,34780520,4671192,1751647,1936233,320095,2041772,119832,3645709,74997,20067483,3813861,192085,1579951,119155,174573,11668,188840]
 
 months = [202308,202309,202310,202311,202312,202401]
 
@@ -26,7 +26,7 @@ driver.find_element(By.NAME,'remember_me').click()
 
 driver.find_element(By.ID,'login-button').click()
 
-df = pd.DataFrame(columns = ['ID','Date', 'Mileage', 'Activity-Type', 'Time', 'Location'])
+df = pd.DataFrame(columns = ['ID', 'Date', 'Mileage', 'Activity-Type', 'Time', 'Location'])
 
 for pro in pros:
 
@@ -36,7 +36,7 @@ for pro in pros:
 
         driver.get(nextlink)
 
-        time.sleep(20)
+        time.sleep(21)
 
         elements = driver.find_elements(By.CSS_SELECTOR, '[data-testid="map"]')
 
@@ -79,6 +79,8 @@ for pro in pros:
             driver.close()
 
             driver.switch_to.window(driver.window_handles[0])
+
+        df.to_csv('./analysisData.csv', index=False)
 
 
 input()
