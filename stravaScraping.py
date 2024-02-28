@@ -2,6 +2,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
+from selenium.common.exceptions import NoSuchElementException
 import time
 from scraping_secrets import pwd
 from scraping_secrets import email
@@ -12,7 +13,7 @@ driver = webdriver.Edge()
 
 #last crashed at first pro, jan 26
 
-pros = [189040,254096,465035,2119306]#,1189566,384548,1630132,9232885,1905161,186522,8758,4097457,5060232,3979847,5201565,2192184,197359,8203181,2926114,6782552,19593505,30579397,2905866,34780520,4671192,1751647,1936233,320095,2041772,119832,3645709,74997,20067483,3813861,192085,1579951,119155,174573,11668,188840]
+pros = [189040,254096,465035,2119306,1189566,384548,1630132,9232885,1905161,186522,8758,4097457,5060232,3979847,5201565,2192184,197359,8203181,2926114,6782552,19593505,30579397,2905866,34780520,4671192,1751647,1936233,320095,2041772,119832,3645709,74997,20067483,3813861,192085,1579951,119155,174573,11668,188840]
 
 months = [202308,202309,202310,202311,202312,202401]
 
@@ -26,7 +27,7 @@ driver.find_element(By.NAME,'remember_me').click()
 
 driver.find_element(By.ID,'login-button').click()
 
-df = pd.DataFrame(columns = ['ID', 'Date', 'Mileage', 'Activity-Type', 'Time', 'Location'])
+df = pd.DataFrame(columns = ['ID', 'Date', 'Mileage', 'Elevation', 'Activity-Type', 'Time', 'Location'])
 
 for pro in pros:
 
@@ -56,23 +57,48 @@ for pro in pros:
 
             for w in chwd:
                 if(w!=p):
-                    driver.switch_to.window(w)
+                    driver.switch_to.window(w) 
 
-            time.sleep(2)
+            time.sleep(3)
 
             driver.find_element(By.ID,'gpx-download').click()
-
-            date = driver.find_element(By.XPATH, '//*[@id="heading"]/div/div/div[1]/div[1]/div/time')
             
-            miles = driver.find_element(By.XPATH, '//*[@id="heading"]/div/div/div[2]/ul[1]/li[1]/strong')
+            try:
+                date = driver.find_element(By.XPATH, '//*[@id="heading"]/div/div/div[1]/div[1]/div/time').text
 
-            activity_type = driver.find_element(By.XPATH, '//*[@id="heading"]/header/h2/span')
+            except NoSuchElementException:
+                activity_time = 'N/A'
+            
+            try:
+                miles = driver.find_element(By.XPATH, '//*[@id="heading"]/div/div/div[2]/ul[1]/li[1]/strong').text
 
-            activity_time = driver.find_element(By.XPATH, '//*[@id="heading"]/div/div/div[2]/ul[1]/li[2]/strong')
+            except NoSuchElementException:
+                activity_time = 'N/A'                
 
-            location = driver.find_element(By.XPATH, '//*[@id="heading"]/div/div/div[1]/div[1]/div/span')
+            try:
+                activity_type = driver.find_element(By.XPATH, '//*[@id="heading"]/header/h2/span').text
 
-            new_row = {'ID':pro,'Date':date.text, 'Mileage':miles.text, 'Activity-Type':activity_type.text, 'Time':activity_time.text, 'Location':location.text}
+            except NoSuchElementException:
+                activity_time = 'N/A'
+            try:
+                activity_time = driver.find_element(By.XPATH, '//*[@id="heading"]/div/div/div[2]/ul[1]/li[2]/strong').text
+
+            except NoSuchElementException:
+                activity_time = 'N/A'
+
+            try:
+                location = driver.find_element(By.XPATH, '//*[@id="heading"]/div/div/div[1]/div[1]/div/span').text
+
+            except NoSuchElementException:
+                location = 'N/A'
+
+            try:
+                elevation = driver.find_element(By.XPATH,'//*[@id="heading"]/div/div/div[2]/ul[1]/li[3]/strong').text
+
+            except NoSuchElementException:
+                elevation = 'N/A'
+
+            new_row = {'ID':pro,'Date':date, 'Mileage':miles, 'Elevation':elevation, 'Activity-Type':activity_type, 'Time':activity_time, 'Location':location}
 
             df = df._append(new_row, ignore_index=True)
 
@@ -80,7 +106,7 @@ for pro in pros:
 
             driver.switch_to.window(driver.window_handles[0])
 
-        df.to_csv('./analysisData.csv', index=False)
+        df.to_csv('analysisData.csv', index=False)
 
 
 input()
