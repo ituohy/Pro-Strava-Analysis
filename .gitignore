@@ -1,2 +1,4 @@
 /scraping_secrets.py
+/data-raw/finalized_analysisData.csv
+/data-raw/Hometown_and_coords.csv
 .Rproj.user
